@@ -20,7 +20,7 @@
 //   More efficient data structure to hold the words
 //   Base 6 encoding
 
-String[] words = new String[66667];
+HashMap<Integer,String> wordsDictionary = new HashMap<>();
 String word = "";
 
 void setup() { 
@@ -28,24 +28,52 @@ void setup() {
   String[] lines = loadStrings("eff_large_wordlist.txt");
   for (int i = 0 ; i < lines.length; i++) {
     String[] results = lines[i].split("\t");
-    words[int(results[0])] = results[1];
+    String number = results[0];
+    String word = results[1];
+    //number = substractOneFromEachDigit(number);
+    wordsDictionary.put(fromSixToTen(number), word);
   }
   textSize(48);
+  noLoop();
 }
 
 void keyPressed() {
   String lookupString = "";
-
   for( int i = 0; i < 5; i++ ) {
     lookupString += int(random(0,6)) + 1;
   }
-  
-  word += words[int(lookupString)];
+  int lookupInt = fromSixToTen(lookupString);
+  word += wordsDictionary.get(lookupInt);
+  redraw();
 }
 
 void draw() {
+  showText(word);
+}
+void showText(String text) {
   background(240);
   fill(120);
-  float w = textWidth(word);
-  text(word,width/2-w/2,height/2);
+  float w = textWidth(text);
+  text(text,width/2-w/2,height/2);
+}
+
+String substractOneFromEachDigit(String number) {
+  String result = "";
+  for (int i = 0; i < number.length(); i++) {
+    int modified = Character.getNumericValue(number.charAt(i)) - 1;
+    result += modified;
+  }
+  return result;
+}
+int fromSixToTen(String number) {
+  int result = 0;
+  for (int i = 0; i < number.length(); i++) {
+    int multiplier = (int) pow(6, number.length() - 1 - i);
+    int numAtPos = Character.getNumericValue(number.charAt(i));
+    result += numAtPos * multiplier;
+  }
+  return result;
+}
+int fromSixToTen(int number) {
+  return fromSixToTen(Integer.toString(number));
 }
